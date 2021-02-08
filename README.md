@@ -1,3 +1,51 @@
+FastLED 3.4 with SK6812 RGBW support for ESP 32
+===============================================
+This fork of FastLED is modified to support SK6812 RGBW Strip on ESP 32 platform.
+You have to use RTM. Changes can be seen at fork compare.
+White channel is lowest value from rgb -> (255, 129, 153) will be (126, 0, 24).
+# Exmaple
+```c++
+#include <Arduino.h>
+#include <FastLED.h>
+#define DELAY 100
+#define NUM_LEDS 56
+#define DATA_PIN 16
+#define BRIGHTNESS 64
+CRGB leds[NUM_LEDS];
+void setup() {
+	// SK6812 with GRBW formatting
+	FastLED.addLeds<SK6812, DATA_PIN, GRBW>(leds, NUM_LEDS);
+	FastLED.setBrightness(BRIGHTNESS);
+}
+void loop() {
+	// Fill R, G, B, W
+	for (int32_t i = 0; i < NUM_LEDS; i++) {
+		leds[i] = CRGB::Red;
+		FastLED.show();
+		delay(DELAY);
+	}
+	for (int32_t i = 0; i < NUM_LEDS; i++) {
+		leds[i] = CRGB::Green;
+		FastLED.show();
+		delay(DELAY);
+	}
+	for (int32_t i = 0; i < NUM_LEDS; i++) {
+		leds[i] = CRGB::Blue;
+		FastLED.show();
+		delay(DELAY);
+	}
+	for (int32_t i = 0; i < NUM_LEDS; i++) {
+		leds[i] = CRGB::White;
+		FastLED.show();
+		delay(DELAY);
+	}
+}
+```
+
+### Original README
+---
+
+
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FastLED/public)
 [![arduino-library-badge](https://www.ardu-badge.com/badge/FastLED.svg)](https://www.ardu-badge.com/FastLED)
 ![build status](https://github.com/FastLED/FastLED/workflows/build/badge.svg)

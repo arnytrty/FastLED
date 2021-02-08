@@ -335,17 +335,49 @@ protected:
     //    It also packs the bytes into 32 bit chunks with the right bit order.
     void loadPixelData(PixelController<RGB_ORDER> & pixels)
     {
-        // -- Make sure the buffer is allocated
-        int size_in_bytes = pixels.size() * 3;
-        uint8_t * pData = mRMTController.getPixelBuffer(size_in_bytes);
+        if (ORDER_HAS_WHITE_CHANNEL(RGB_ORDER)) {
+            // -- Make sure the buffer is allocated
+            int size_in_bytes = pixels.size() * 4;
+            uint8_t * pData = mRMTController.getPixelBuffer(size_in_bytes);
 
-        // -- This might be faster
-        while (pixels.has(1)) {
-            *pData++ = pixels.loadAndScale0();
-            *pData++ = pixels.loadAndScale1();
-            *pData++ = pixels.loadAndScale2();
-            pixels.advanceData();
-            pixels.stepDithering();
+            // -- This might be faster
+            while (pixels.has(1)) {
+                // calculate white from 3 channels
+                uint8_t r = pixels.loadAndScale0();
+                uint8_t g = pixels.loadAndScale1();
+                uint8_t b = pixels.loadAndScale2();
+
+                uint8_t w = 255;
+                if(r < w) w = r;
+                if(g < w) w = g;
+                if(b < w) w = b;
+
+                r -= w;
+                g -= w;
+                b -= w;
+
+                // put data to stack
+                *pData++ = r;
+                *pData++ = g;
+                *pData++ = b;
+                *pData++ = w;
+
+                pixels.advanceData();
+                pixels.stepDithering();
+            }
+        } else {
+            // -- Make sure the buffer is allocated
+            int size_in_bytes = pixels.size() * 3;
+            uint8_t * pData = mRMTController.getPixelBuffer(size_in_bytes);
+
+            // -- This might be faster
+            while (pixels.has(1)) {
+                *pData++ = pixels.loadAndScale0();
+                *pData++ = pixels.loadAndScale1();
+                *pData++ = pixels.loadAndScale2();
+                pixels.advanceData();
+                pixels.stepDithering();
+            }
         }
     }
 
